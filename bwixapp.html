@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bwixapp</title>
+
+<style>
+:root{
+--bg1:#020617;
+--bg2:#0f172a;
+--card:#020617ee;
+--accent:#22c55e;
+--danger:#ef4444;
+}
+
+/* TŁO */
+body{
+margin:0;
+font-family:Arial, sans-serif;
+color:white;
+background:
+linear-gradient(120deg,rgba(255,255,255,.03) 10%,transparent 10% 20%) repeat,
+linear-gradient(60deg,rgba(255,255,255,.04) 8%,transparent 8% 16%) repeat,
+radial-gradient(circle at 20% 10%,rgba(255,255,255,.15),transparent 40%),
+radial-gradient(circle at 80% 30%,rgba(255,255,255,.12),transparent 45%),
+linear-gradient(180deg,var(--bg1),var(--bg2));
+background-size:120px 120px,160px 160px,100% 100%,100% 100%,100% 100%;
+}
+
+.container{max-width:520px;margin:auto;padding:15px}
+
+.card{
+background:var(--card);
+padding:15px;
+border-radius:16px;
+margin-bottom:12px;
+backdrop-filter:blur(6px);
+}
+
+button,input{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:12px;
+border:none;
+font-size:15px;
+}
+
+button{
+background:linear-gradient(135deg,#22c55e,#16a34a);
+font-weight:bold;
+cursor:pointer;
+}
+
+button.danger{
+background:linear-gradient(135deg,#ef4444,#b91c1c);
+}
+
+.hidden{display:none}
+
+.meal{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#020617;
+padding:10px;
+border-radius:12px;
+margin-top:8px;
+font-size:14px;
+}
+
+.delete{
+background:none;
+border:none;
+color:#ef4444;
+font-size:18px;
+cursor:pointer;
+width:auto;
+}
+
+.progress{
+height:14px;
+background:#1e293b;
+border-radius:10px;
+overflow:hidden;
+margin-top:6px;
+}
+
+.bar{
+height:100%;
+width:0%;
+background:var(--accent);
+transition:.4s;
+}
+
+.social{
+display:flex;
+align-items:center;
+gap:12px;
+padding:12px;
+border-radius:14px;
+background:#020617;
+margin-top:10px;
+}
+
+.logo{
+width:42px;
+height:42px;
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+}
+
+.tiktok{background:black}
+.twitch{background:#9146FF}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- MENU -->
+<div id="menu" class="card">
+<h2>🥗 bwixapp</h2>
+<button onclick="show('calc')">🧮 Kalkulator kalorii</button>
+<button onclick="show('day')">🍽️ Dzień</button>
+<button onclick="show('goals')">🎯 Cele & BMI</button>
+<button onclick="show('socials')">🌐 Social Media</button>
+
+<p style="font-size:14px;color:#94a3b8;margin-top:10px">
+📸 Aby sprawdzić kaloryczność posiłku:  
+zrób zdjęcie → wklej do ChatGPT → zapytaj o makro
+</p>
+</div>
+
+<!-- KALKULATOR -->
+<div id="calc" class="card hidden">
+<button onclick="show('menu')">⬅ Menu</button>
+<h3>Kalkulator kalorii</h3>
+<input id="protein" type="number" placeholder="Białko (g)">
+<input id="fat" type="number" placeholder="Tłuszcze (g)">
+<input id="carbs" type="number" placeholder="Węgle (g)">
+<button onclick="calculate()">Oblicz</button>
+<div id="result"></div>
+</div>
+
+<!-- DZIEŃ -->
+<div id="day" class="card hidden">
+<button onclick="show('menu')">⬅ Menu</button>
+
+<div class="card">
+🔥 <span id="kcal">0</span> / <span id="goalKcal">0</span> kcal
+<div class="progress"><div id="kcalBar" class="bar"></div></div>
+🥩 <span id="p">0</span> | 🍞 <span id="c">0</span> | 🧈 <span id="f">0</span>
+<button class="danger" onclick="resetDay()">Reset dnia</button>
+</div>
+
+<div class="card">
+<input id="mealName" type="text" placeholder="Nazwa posiłku">
+<input id="ck" type="number" placeholder="Kalorie">
+<input id="cp" type="number" placeholder="Białko">
+<input id="cc" type="number" placeholder="Węgle">
+<input id="cf" type="number" placeholder="Tłuszcze">
+<button type="button" onclick="add()">Dodaj posiłek</button>
+</div>
+
+<div id="list"></div>
+</div>
+
+<!-- CELE & BMI -->
+<div id="goals" class="hidden">
+<button onclick="show('menu')">⬅ Menu</button>
+
+<div class="card">
+<input id="goalInput" type="number" placeholder="Cel kcal">
+<button onclick="saveGoal()">Zapisz cel</button>
+<p>🥩 Zalecane białko: <b><span id="proteinNeed">0</span> g</b></p>
+</div>
+
+<div class="card">
+<input id="height" type="number" placeholder="Wzrost (cm)">
+<input id="weight" type="number" placeholder="Waga (kg)">
+<button onclick="calcBMI()">Oblicz BMI</button>
+<div id="bmiResult"></div>
+</div>
+</div>
+
+<!-- SOCIAL MEDIA -->
+<div id="socials" class="hidden">
+<button onclick="show('menu')">⬅ Menu</button>
+
+<div class="social">
+<div class="logo tiktok">🎵</div>
+<div><b>TikTok</b><br>@bwixix</div>
+</div>
+
+<div class="social">
+<div class="logo twitch">🎮</div>
+<div><b>Twitch</b><br>bwix69</div>
+</div>
+</div>
+
+</div>
+
+<script>
+// POKAZ/ZAKRYJ ZAKŁADKI
+function show(id){
+["menu","calc","day","goals","socials"].forEach(s=>document.getElementById(s).classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+}
+
+// KALKULATOR
+function calculate(){
+const p=+document.getElementById("protein").value||0;
+const f=+document.getElementById("fat").value||0;
+const c=+document.getElementById("carbs").value||0;
+document.getElementById("result").innerHTML=`🔥 ${p*4 + c*4 + f*9} kcal`;
+}
+
+// ELEMENTY DZIEŃ
+const kcalElem = document.getElementById("kcal");
+const pElem = document.getElementById("p");
+const cElem = document.getElementById("c");
+const fElem = document.getElementById("f");
+const kcalBar = document.getElementById("kcalBar");
+const list = document.getElementById("list");
+const goalKcalElem = document.getElementById("goalKcal");
+const goalInputElem = document.getElementById("goalInput");
+
+// DANE I CEL
+let data = JSON.parse(localStorage.getItem("bwix")) || {kcal:0,p:0,c:0,f:0,meals:[]};
+let goal = +localStorage.getItem("goal") || 0;
+
+// RENDER
+function render(){
+  kcalElem.textContent = data.kcal;
+  pElem.textContent = data.p;
+  cElem.textContent = data.c;
+  fElem.textContent = data.f;
+  goalKcalElem.textContent = goal;
+
+  list.innerHTML = "";
+  data.meals.forEach((m,i)=>{
+    const div = document.createElement("div");
+    div.className = "meal";
+    div.innerHTML = `<span>${m.name} – 🔥 ${m.kcal}</span>
+                     <button class="delete" onclick="del(${i})">✖</button>`;
+    list.appendChild(div);
+  });
+
+  let percent = goal ? Math.min(100, data.kcal/goal*100) : 0;
+  kcalBar.style.width = percent + "%";
+  kcalBar.style.background = data.kcal>goal ? "var(--danger)" : "var(--accent)";
+}
+
+// DODAJ POSIŁEK
+function add(){
+  const mealName = document.getElementById("mealName").value;
+  const ckV = +document.getElementById("ck").value || 0;
+  const cpV = +document.getElementById("cp").value || 0;
+  const ccV = +document.getElementById("cc").value || 0;
+  const cfV = +document.getElementById("cf").value || 0;
+
+  if(!mealName) return;
+
+  data.kcal += ckV;
+  data.p += cpV;
+  data.c += ccV;
+  data.f += cfV;
+
+  data.meals.push({name:mealName,kcal:ckV,p:cpV,c:ccV,f:cfV});
+  localStorage.setItem("bwix",JSON.stringify(data));
+  render();
+
+  ["mealName","ck","cp","cc","cf"].forEach(id=>document.getElementById(id).value="");
+}
+
+// USUŃ POSIŁEK
+function del(i){
+  const m = data.meals[i];
+  data.kcal -= m.kcal;
+  data.p -= m.p;
+  data.c -= m.c;
+  data.f -= m.f;
+  data.meals.splice(i,1);
+  localStorage.setItem("bwix",JSON.stringify(data));
+  render();
+}
+
+// RESET DANE
+function resetDay(){
+  if(!confirm("Zresetować dzień?")) return;
+  data={kcal:0,p:0,c:0,f:0,meals:[]};
+  localStorage.setItem("bwix",JSON.stringify(data));
+  render();
+}
+
+// ZAPISZ CEL
+function saveGoal(){
+  goal = +goalInputElem.value || 0;
+  localStorage.setItem("goal", goal);
+  render();
+}
+
+// BMI
+function calcBMI(){
+  const h = +document.getElementById("height").value / 100;
+  const w = +document.getElementById("weight").value;
+  if(!h||!w) return;
+  const bmi = (w/(h*h)).toFixed(1);
+  document.getElementById("proteinNeed").textContent = Math.round(w*2);
+  document.getElementById("bmiResult").innerHTML = `BMI: <b>${bmi}</b>`;
+}
+
+render();
+</script>
+</body>
+</html>
